@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:15
+    container_name: vps-db
+    environment:
+      POSTGRES_USER: hotspot
+      POSTGRES_PASSWORD: hotspot123
+      POSTGRES_DB: hotspotdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hotspot -d hotspotdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+
+  api:
+    build: ./api
+    container_name: vps-api
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./api:/app
+    environment:
+      DATABASE_URL: postgres://hotspot:hotspot123@db:5432/hotspotdb
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  nginx:
+    image: nginx:latest
+    container_name: vps-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
