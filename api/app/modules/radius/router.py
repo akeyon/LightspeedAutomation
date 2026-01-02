@@ -11,7 +11,7 @@ router = APIRouter()
 @router.post("/auth", response_model=RadiusAuthResponse)
 async def auth(payload: RadiusAuthRequest):
     return radius_auth(
-        username=payload.username,
+        # username=payload.username,
         mac=payload.mac,
         ip=payload.ip
     )

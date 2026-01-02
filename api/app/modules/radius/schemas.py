@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class RadiusAuthRequest(BaseModel):
-    username: str
+    # username: str
     mac: str
     ip: str
 
